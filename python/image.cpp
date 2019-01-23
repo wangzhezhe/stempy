@@ -27,6 +27,21 @@ PYBIND11_MODULE(_image, m)
     .def_readonly("bright", &STEMImage::bright)
     .def_readonly("dark", &STEMImage::dark);
 
+  py::class_<DarkFieldReference>(m , "_dark", py::buffer_protocol())
+    .def_buffer([](DarkFieldReference& d) {
+       return py::buffer_info(
+          d.referenceFrame.get(),                                              /* Pointer to buffer */
+          sizeof(uint64_t),                                             /* Size of one scalar */
+          py::format_descriptor<uint64_t>::format(),                    /* Python struct-style format descriptor */
+          1,                                                            /* Number of dimensions */
+          { d.size },  /* Buffer dimensions */
+          { sizeof(uint64_t) });
+    })
+    .def_readonly("mean", &DarkFieldReference::mean)
+    .def_readonly("variance", &DarkFieldReference::variance);
+
+
   m.def("create_stem_image", &createSTEMImage);
+  m.def("create_dark_field_reference", &createDarkFieldReference);
 
 }
