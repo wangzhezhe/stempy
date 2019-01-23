@@ -23,6 +23,9 @@ find_package(SocketIOClientCpp)
 include_directories(
   ${SocketIOClientCpp_INCLUDE_DIRS}
 )
+find_package(MPI REQUIRED)
+include_directories(SYSTEM ${MPI_CXX_INCLUDE_DIRS})
+
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
@@ -44,6 +47,8 @@ set(_libs Threads::Threads)
 if(SocketIOClientCpp_FOUND)
   list(APPEND _libs sioclient)
 endif()
+
+list(APPEND _libs MPI::MPI_CXX)
 
 target_link_libraries(stem
   PRIVATE ${_libs})
