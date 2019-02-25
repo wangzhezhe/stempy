@@ -20,5 +20,11 @@ def create_dark_field_reference(blocks, width, height, number_of_samples=20, str
     dark_reference.frame = np.array(dark, copy = False)
     dark_reference.mean = dark.mean
     dark_reference.variance = dark.variance
+    dark_reference._dark = dark
 
     return dark_reference
+
+def calculate_counting_threshhold(blocks, width, height, darkReference,
+                                  sigmaThreshold=4, numberOfSamples=20, upperLimit=10):
+    _image.calculate_counting_threshhold([b._block for b in blocks], width, height, darkReference._dark,
+                                  sigmaThreshold, numberOfSamples, upperLimit)

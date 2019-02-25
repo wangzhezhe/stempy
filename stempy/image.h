@@ -56,7 +56,13 @@ namespace stempy {
                                  uint32_t imageNumber=-1);
 
   DarkFieldReference createDarkFieldReference(std::vector<Block>& blocks, int rows, int columns,
-      int numberOfSamples=20, int upperLimit=5, int sampleStripWidth=100);
+      int numberOfSamples=20, int sampleStripWidth=100);
+
+
+  uint64_t calculateCountingThreshhold(std::vector<Block>& blocks, int rows, int columns,
+      const DarkFieldReference& darkReference, int sigmaThreshold=4, int numberOfSamples=20,
+                                    int upperLimit=10);
+
 }
 
 #endif

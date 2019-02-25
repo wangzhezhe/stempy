@@ -43,5 +43,6 @@ PYBIND11_MODULE(_image, m)
 
   m.def("create_stem_image", &createSTEMImage);
   m.def("create_dark_field_reference", &createDarkFieldReference);
+  m.def("calculate_counting_threshhold", &calculateCountingThreshhold);
 
 }
