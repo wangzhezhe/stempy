@@ -225,16 +225,19 @@ STEMImage createSTEMImage(InputIt first, InputIt last, int rows, int columns,
   return image;
 }
 
-Image<double> calculateAverage(std::vector<Block> &blocks)
+template <typename InputIt>
+Image<double> calculateAverage(InputIt first, InputIt last)
 {
-  auto detectorImageRows = blocks[0].header.rows;
-  auto detectorImageColumns = blocks[0].header.columns;
+  auto detectorImageRows = first->header.rows;
+  auto detectorImageColumns = first->header.columns;
   auto numberOfPixels = detectorImageRows*detectorImageColumns;
   Image<double> image(detectorImageRows, detectorImageColumns);
 
   std::fill(image.data.get(), image.data.get() + numberOfPixels, 0.0);
   uint64_t numberOfImages = 0;
-  for(const Block &block: blocks) {
+  InputIt iter = first;
+  for (; iter != last; ++iter) {
+    auto block = *iter;
     auto blockData = block.data.get();
     numberOfImages += block.header.imagesInBlock;
     for(int i=0; i<block.header.imagesInBlock; i++) {
@@ -261,4 +264,6 @@ template STEMImage createSTEMImage(vector<Block>::iterator first,
                                    vector<Block>::iterator last, int rows,
                                    int columns, int innerRadius,
                                    int outerRadius);
+template Image<double> calculateAverage(StreamReader::iterator first,
+    StreamReader::iterator last);
 }
