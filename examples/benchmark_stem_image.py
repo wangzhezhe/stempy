@@ -21,8 +21,8 @@ def run_benchmarks(files, num_runs):
     for i in range(num_runs):
         start = time.time()
 
-        reader = io.reader(files)
-        img = image.create_stem_image(reader, 160, 160,  40, 288);
+        reader = io.reader(files, version=io.FileVersion.VERSION2)
+        img = image.create_stem_image(reader, 40, 40,  40, 288);
 
         end = time.time()
         times.append(end - start)

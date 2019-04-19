@@ -45,7 +45,6 @@ STEMValues calculateSTEMValues(uint16_t data[], int offset,
   stemValues.imageNumber = imageNumber;
   for (int i=0; i<numberOfPixels; i++) {
     auto value = data[offset + i];
-
     stemValues.bright += value & brightFieldMask[i];
     stemValues.dark  += value & darkFieldMask[i];
   }

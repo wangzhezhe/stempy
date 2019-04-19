@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <regex>
+#include <string>
 #include <ThreadPool.h>
 
 using namespace std;
@@ -117,8 +119,15 @@ Header StreamReader::readHeaderVersion2() {
   read(&firstImageNumber, sizeof(uint32_t));
   // HACK!
   // Our current datasets doesn't seem to have a valid firstImageNumber, so we
-  // reset to zero here!
-  firstImageNumber = 0;
+  // reset to one here!
+  firstImageNumber = 1;
+  auto file = m_files[m_curFileIndex];
+  const std::regex fileNumberRegex(".*_(\\d+)\\.dat");
+  std::smatch groups;
+  std::regex_match(file, groups, fileNumberRegex);
+  if (groups.size() == 2) {
+    firstImageNumber = std::stoi(groups[1].str()) + 1;
+  }
 
   header.imagesInBlock = 1600;
   header.rows = 576;
