@@ -126,7 +126,7 @@ Header StreamReader::readHeaderVersion2() {
   std::smatch groups;
   std::regex_match(file, groups, fileNumberRegex);
   if (groups.size() == 2) {
-    firstImageNumber = std::stoi(groups[1].str()) + 1;
+    firstImageNumber = std::stoi(groups[1].str())*1600 + 1;
   }
 
   header.imagesInBlock = 1600;
