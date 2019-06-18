@@ -45,7 +45,7 @@ namespace stempy {
                                           std::vector<int> innerRadii,
                                           std::vector<int> outerRadii,
                                           int scanWidth = 0, int scanHeight = 0,
-                                          int centerX = -1, int centerY = -1);
+                                          int centerX = -1, int centerY = -1, int threadNum = 2);
 
   std::vector<STEMImage> createSTEMImagesSparse(
     const std::vector<std::vector<uint32_t>>& sparseData,

@@ -3,19 +3,19 @@ import numpy as np
 
 def create_stem_images(reader, inner_radii,
                        outer_radii, width=0, height=0,
-                       center_x=-1, center_y=-1):
+                       center_x=-1, center_y=-1, threadNum=2 ):
     imgs = _image.create_stem_images(reader.begin(), reader.end(),
                                      inner_radii, outer_radii, width, height,
-                                     center_x, center_y)
+                                     center_x, center_y,threadNum)
 
     images = [np.array(img, copy=False) for img in imgs]
     return np.array(images, copy=False)
 
 # This one exists for backward compatibility
 def create_stem_image(reader, inner_radius, outer_radius, width=0, height=0,
-                      center_x=-1, center_y=-1):
+                      center_x=-1, center_y=-1, threadNum=2):
     return create_stem_images(reader, (inner_radius,), (outer_radius,),
-                              width, height, center_x, center_y)[0]
+                              width, height, center_x, center_y, threadNum)[0]
 
 def create_stem_images_sparse(data, inner_radii, outer_radii,
                               width, height, frame_width, frame_height,

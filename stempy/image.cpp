@@ -154,7 +154,7 @@ template <typename InputIt>
 vector<STEMImage> createSTEMImages(InputIt first, InputIt last,
                                    vector<int> innerRadii,
                                    vector<int> outerRadii, int width,
-                                   int height, int centerX, int centerY)
+                                   int height, int centerX, int centerY, int threaNum)
 {
   if (first == last) {
     ostringstream msg;
@@ -218,7 +218,7 @@ vector<STEMImage> createSTEMImages(InputIt first, InputIt last,
   // the disk in the main thread.
   // We benchmarked this on a 10 core computer, and typically found
   // 2 threads to be ideal.
-  int numThreads = 2;
+  int numThreads = threaNum;
   ThreadPool pool(numThreads);
 
   // Populate the worker pool
@@ -584,13 +584,13 @@ template vector<STEMImage> createSTEMImages(StreamReader::iterator first,
                                             vector<int> innerRadii,
                                             vector<int> outerRadii, int width,
                                             int height, int centerX,
-                                            int centerY);
+                                            int centerY, int threadNum);
 template vector<STEMImage> createSTEMImages(vector<Block>::iterator first,
                                             vector<Block>::iterator last,
                                             vector<int> innerRadii,
                                             vector<int> outerRadii, int width,
                                             int height, int centerX,
-                                            int centerY);
+                                            int centerY,int threadNum);
 
 template Image<double> calculateAverage(StreamReader::iterator first,
                                         StreamReader::iterator last);
