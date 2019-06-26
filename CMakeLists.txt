@@ -99,3 +99,5 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in"
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/pybind11)
 add_subdirectory(python)
+add_subdirectory(stempy)
+add_subdirectory(examples/hdf5)

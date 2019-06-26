@@ -32,7 +32,7 @@ def run_benchmarks(files, num_runs):
             print('Thread number ' + str(threadNum) + ' : {:0.2f} seconds'.format(times[-1]))
             threadNum = threadNum*2
 
-    print('Number of runs was:', num_runs)
+    print('Number of round was:', num_runs)
 
 
 if __name__ == '__main__':
