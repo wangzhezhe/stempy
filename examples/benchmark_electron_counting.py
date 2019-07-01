@@ -38,7 +38,7 @@ def run_benchmarks(files, dark_sample, num_runs):
         times.append(end - start)
         print('Run ' + str(len(times)) + ': {:0.2f} seconds'.format(times[-1]))
 
-    print('Number of runs was:', num_runs)
+    print('Number of round is:', num_runs)
     print('Average time: {:0.2f} seconds'.format(sum(times) / num_runs))
 
 if __name__ == '__main__':

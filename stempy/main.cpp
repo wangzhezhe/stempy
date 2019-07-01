@@ -26,11 +26,11 @@ int main (int argc, char *argv[])
     cout << "Images in block: " <<  stream.header.imagesInBlock << endl;
     cout << "Rows: " << stream.header.frameHeight << endl;
     cout << "Columns: " << stream.header.frameWidth << endl;
-    cout << "Image numbers: ";
+    //cout << "Image numbers: ";
 
-    for (auto n : stream.header.imageNumbers) {
-      cout << n << " ";
-    }
+    //for (auto n : stream.header.imageNumbers) {
+    //  cout << n << " ";
+    //}
     cout << endl;
 
   }

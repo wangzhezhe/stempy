@@ -5,6 +5,9 @@
 
 #include <ThreadPool.h>
 
+#include <time.h>
+#define BILLION 1000000000L
+
 #ifdef VTKm
 #include <vtkm/cont/Algorithm.h>
 #include <vtkm/cont/ArrayHandleCompositeVector.h>
@@ -130,6 +133,10 @@ void _runCalculateSTEMValues(const uint16_t data[],
                              STEMImage& image)
 #endif
 {
+   //timer
+  struct timespec start, end;
+  clock_gettime(CLOCK_REALTIME, &start); /* mark the start time */
+
 #ifdef VTKm
   // Transfer the entire block of data at once.
   auto dataHandle =
@@ -147,6 +154,12 @@ void _runCalculateSTEMValues(const uint16_t data[],
 #endif
     image.data[imageNumbers[i]] = stemValues.data;
   }
+
+  //timer
+  clock_gettime(CLOCK_REALTIME, &end); /* mark the end time */
+  double diff;
+  diff = (end.tv_sec - start.tv_sec) * 1.0 + (end.tv_nsec - start.tv_nsec) * 1.0 / BILLION;;
+  std::cout<< "timer2: thread execution " << diff << "\n";
 }
 } // end namespace
 
@@ -156,6 +169,10 @@ vector<STEMImage> createSTEMImages(InputIt first, InputIt last,
                                    vector<int> outerRadii, int width,
                                    int height, int centerX, int centerY, int threaNum)
 {
+  struct timespec cistart, ciend, initend;
+  clock_gettime(CLOCK_REALTIME, &cistart); /* mark the start time */
+
+
   if (first == last) {
     ostringstream msg;
     msg << "No blocks to read!";
@@ -223,14 +240,35 @@ vector<STEMImage> createSTEMImages(InputIt first, InputIt last,
 
   // Populate the worker pool
   vector<future<void>> futures;
-  for (; first != last; ++first) {
+  
+  //end read and enqueue operation
+  clock_gettime(CLOCK_REALTIME, &initend); /* mark the end time */
+  double initdiff = (initend.tv_sec - cistart.tv_sec) * 1.0 + (initend.tv_nsec - cistart.tv_nsec) * 1.0 / BILLION;;
+  std::cout<< "timer1.1: init operation before read data " << initdiff << "\n";
+  
+  // start read
+  //timer
+  struct timespec dlstart, dlend, dmstart, dmend1,dmend2;
+  clock_gettime(CLOCK_REALTIME, &dlstart); /* mark the start time */
+
+  for (; first != last; ) {
     // Move the block into the thread by copying... CUDA 10.1 won't allow
     // us to do something like "pool.enqueue([ b{ std::move(*first) }, ...])"
+
+    clock_gettime(CLOCK_REALTIME, &dmstart); /* mark the start time */
+
     Block b = std::move(*first);
+    //end read and enqueue operation
+    clock_gettime(CLOCK_REALTIME, &dmend2); /* mark the end time */
+
+    double cidiff = (dmend2.tv_sec - dmstart.tv_sec) * 1.0 + (dmend2.tv_nsec - dmstart.tv_nsec) * 1.0 / BILLION;;
+    std::cout<< "timer1.3.1: time for move " << cidiff << "\n";
+
 
     for (size_t i = 0; i < masks.size(); ++i) {
       auto& image = images[i];
 #ifdef VTKm
+      //std::cout << "vtkm is used "<< "\n";
       const auto& maskHandle = maskHandles[i];
 
       // Instead of calling _runCalculateSTEMValues directly, we use a
@@ -257,15 +295,32 @@ vector<STEMImage> createSTEMImages(InputIt first, InputIt last,
         }));
 #endif
     }
+
+    clock_gettime(CLOCK_REALTIME, &dmstart); /* mark the start time */
+    ++first;
+    //end read and enqueue operation
+    clock_gettime(CLOCK_REALTIME, &dmend1); /* mark the end time */
+    cidiff = (dmend1.tv_sec - dmstart.tv_sec) * 1.0 + (dmend1.tv_nsec - dmstart.tv_nsec) * 1.0 / BILLION;;
+    std::cout<< "timer1.3.2: time for ++first " << cidiff << "\n";
+
   }
 
   // Make sure all threads are finished before continuing
   for (auto& future : futures)
     future.get();
 
+  //end read and enqueue operation
+  clock_gettime(CLOCK_REALTIME, &dlend); /* mark the end time */
+  double diff = (dlend.tv_sec - dlstart.tv_sec) * 1.0 + (dlend.tv_nsec - dlstart.tv_nsec) * 1.0 / BILLION;;
+  std::cout<< "timer1.2: read, enqueue, get future operation " << diff << "\n";
+
   for (const auto* p : masks)
     delete[] p;
 
+  clock_gettime(CLOCK_REALTIME, &ciend); /* mark the start time */
+  double cidiff = (ciend.tv_sec - cistart.tv_sec) * 1.0 + (ciend.tv_nsec - cistart.tv_nsec) * 1.0 / BILLION;;
+  std::cout<< "timer1: total run time for createSTEMImages " << cidiff << "\n";
+  
   return images;
 }
 
@@ -286,6 +341,10 @@ vector<STEMImage> createSTEMImagesSparse(
   vector<int> outerRadii, int width, int height, int frameWidth,
   int frameHeight, int centerX, int centerY)
 {
+
+  struct timespec cisstart, cisend;
+  clock_gettime(CLOCK_REALTIME, &cisstart); /* mark the start time */
+
   if (innerRadii.empty() || outerRadii.empty()) {
     ostringstream msg;
     msg << "innerRadii or outerRadii are empty!";
@@ -340,6 +399,11 @@ vector<STEMImage> createSTEMImagesSparse(
 
   for (auto* p : masks)
     delete[] p;
+
+
+  clock_gettime(CLOCK_REALTIME, &cisend); /* mark the start time */
+  double cisdiff = (cisend.tv_sec - cisstart.tv_sec) * 1.0 + (cisend.tv_nsec - cisstart.tv_nsec) * 1.0 / BILLION;;
+  std::cout<< "timer0: total run time for createSTEMImagesSparse " << cisdiff << "\n";
 
   return images;
 }
@@ -547,6 +611,7 @@ RadialSum<uint64_t> radialSum(InputIt first, InputIt last, int scanWidth, int sc
     // Instead of calling _runCalculateSTEMValues directly, we use a
     // lambda so that we can explicity delete the block. Otherwise,
     // the block will not be deleted until the threads are destroyed.
+
 #ifdef VTKm
     auto numberOfScanPositions = radialSum.width * radialSum.height;
     futures.emplace_back(pool.enqueue(
